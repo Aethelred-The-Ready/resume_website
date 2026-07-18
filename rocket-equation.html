@@ -1,0 +1,270 @@
+
+<body>
+<html>
+<h1>The Rocket Equation</h1>
+<p>Enter values for 3 of the variables and press recalc on the remaining one.
+(Note that the more popular specific impulse is being used with isp = Ve / 9.8)</p>
+<p>Some easy values are provided in the drop down menus.</p>
+<p>Alternatively, you can set delta-v, isp, and the stage parameters to do a fixed point calculation of a stage dry mass. (inert mass ratio = dry mass / propellant mass)</p>
+<table border="0">
+	<tr>
+		<td>
+			<table border="0">
+				<tr>
+					<td>dv</td>
+					<td><input id="dv" onchange="update_watches()"/> m/s</td>
+					<td><button onclick="calc_dv()">recalc</button></td>
+					<td>
+						<select id="dvsel" onchange="select_dv()">
+							<option value="">-</option>
+							<option value="9000">Earth to LEO</option>
+							<option value="3107">LEO to LTO</option>
+							<option value="837">LTO to LLO</option>
+							<option value="559">LTO to EML-1</option>
+							<option value="525">LTO to EML-2</option>
+							<option value="3140">LTO to Lunar Surface</option>
+							<option value="2706">LLO to Lunar Surface</option>
+							<option value="2890">Lunar Surface to ETO</option>
+							<option value="2334">Lunar Surface to LLO</option>
+							<option value="837">LLO to ETO</option>
+							<option value="559">EML-1 to ETO</option>
+							<option value="525">EML-2 to ETO</option>
+							<option value="3107">ETO to LEO</option>
+							<option value="3220">LEO to Earth Escape</option>
+							<option value="3800">Mars Surface to LMO</option>
+							<option value="5200">LEO to Mars Capture (typical)</option>
+							<option value="6600">LEO to Mars Orbit (typical)</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>isp</td>
+					<td><input id="isp" onchange="update_watches()"/> s</td>
+					<td><button onclick="calc_isp()">recalc</button></td>
+					<td>
+						<select id="ispsel" onchange="select_isp()">
+							<option value="">-</option>
+							<option value="300">Draco thruster</option>
+							<option value="330">Sea Level Raptor</option>
+							<option value="380">Vacuum Raptor</option>
+							<option value="312">Storable</option>
+							<option value="320">LOX/RP-1</option>
+							<option value="435">LOX/LH2</option>
+							<option value="435">LOX/LH2</option>
+							<option value="2805">HERMeS thruster</option>
+							<option value="4077">NEXT-C High ISP</option>
+							<option value="3999">NEXT-C High Thrust</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>m0</td>
+					<td><input id="m0" onchange="update_watches()"/> kg</td>
+					<td><button onclick="calc_m0()">recalc</button></td>
+					<td>
+						<select id="m0sel" onchange="select_m0()">
+							<option value="">Payload of a</option>
+							<option value="18850">Atlas V 551 to LEO</option>
+							<option value="8900">Atlas V 551 to GTO</option>
+							<option value="21650">Ariane 6 A64 to LEO</option>
+							<option value="8500">Ariane 6 A64 to GTO</option>
+							<option value="17400">Falcon 9 to LEO</option>
+							<option value="5500">Falcon 9 to GTO</option>
+							<option value="63800">Falcon Heavy Expended to LEO</option>
+							<option value="26700">Falcon Heavy Expended to GTO</option>
+							<option value="130000">SLS Block 2 to LEO</option>
+							<option value="37000">SLS Block 2 to TLI</option>
+							<option value="19000">Vulcan to LEO</option>
+							<option value="6300">Vulcan to TLI</option>
+							<option value="150000">Starship to LEO</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>m1</td>
+					<td><input id="m1" onchange="update_watches()"/> kg</td>
+					<td><button onclick="calc_m1()">recalc</button></td>
+				</tr>
+			</table>
+		</td>
+		<td bgcolor="blue"></td>
+		<td>
+			<table>
+				<tr><th>Stage</th><th></th></tr>
+				<tr><td>inert mass ratio</td><td><input id="imr"/></td></tr>
+				<tr><td>payload mass</td><td><input id="pm"/><button onclick="calc_pm()">recalc</button></td></tr>
+				<tr><td>dry mass</td><td><input id="dm"/><button onclick="calc_dm()">recalc</button></td></tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<br/>
+<table border="0">
+  	<tr>
+  		<td>Calculations</td>
+      <td>Results</td>
+  	</tr>
+	<tr>
+		<td>
+			<textarea id="results" cols="65" rows="25" onchange="update_watches()"></textarea>
+		</td>
+		<td>
+			<textarea id="watches" cols="20" rows="25" readonly></textarea>
+		</td>
+    </tr>
+</table>
+
+<script language="javascript">
+
+var dvsel = document.getElementById("dvsel");
+var ispsel = document.getElementById("ispsel");
+var m0sel = document.getElementById("m0sel");
+var idv = document.getElementById("dv");
+var iisp = document.getElementById("isp");
+var im0 = document.getElementById("m0");
+var im1 = document.getElementById("m1");
+var iimr = document.getElementById("imr");
+var ipm = document.getElementById("pm");
+var idm = document.getElementById("dm");
+var results = document.getElementById("results");
+var watches = document.getElementById("watches");
+
+function calc_pm()
+{
+    var imr = parseFloat(iimr.value);
+    var m0 = parseFloat(im0.value);
+    var m1 = parseFloat(im1.value);
+
+    var dm = imr * (m0 - m1);
+    var pm = m1 - dm;
+
+    ipm.value = pm;
+    idm.value = dm;
+}
+
+function calc_dm()
+{
+    var imr = parseFloat(iimr.value);
+    var pm = parseFloat(ipm.value);
+    var dv = parseFloat(idv.value);
+    var isp = parseFloat(iisp.value);
+
+    var dm = 1000;
+    for (var i = 0; i < 100; i++)
+    {
+        var m1 = (pm + dm);
+        var m0 = m1 * Math.exp(dv / (9.8 * isp));
+        dm = (m0 - m1) * imr;
+    }
+
+    idm.value = dm;
+    im0.value = m0;
+    im1.value = m1;
+}
+
+function select_dv()
+{
+    var v = dvsel.options[dvsel.selectedIndex];
+    idv.value = v.value;
+}
+
+function select_isp()
+{
+    var v = ispsel.options[ispsel.selectedIndex];
+    iisp.value = v.value;
+}
+
+function select_m0()
+{
+    var v = m0sel.options[m0sel.selectedIndex];
+    im0.value = v.value;
+}
+
+function calc_dv()
+{
+    var isp = parseFloat(iisp.value);
+    var m0 = parseFloat(im0.value);
+    var m1 = parseFloat(im1.value);
+    idv.value = 9.8 * isp * Math.log(m0/m1);
+    var line = "dv = 9.8 * " + iisp.value + " * Math.log(" + im0.value + " / " + im1.value + ")\n"; 
+    output_result(line);
+}
+
+function calc_isp()
+{
+    var dv = parseFloat(idv.value);
+    var m0 = parseFloat(im0.value);
+    var m1 = parseFloat(im1.value);
+    iisp.value = dv / (9.8 * Math.log(m0/m1));
+    var line = "isp = " + idv.value + " / (9.8 * Math.log(" + im0.value + " / " + im1.value + "))\n";
+    output_result(line);
+}
+
+function calc_m0()
+{
+    var isp = parseFloat(iisp.value);
+    var dv = parseFloat(idv.value);
+    var m1 = parseFloat(im1.value);
+    im0.value = m1 * Math.exp(dv / (9.8 * isp));
+    var line = "m0 = " + im1.value + " * Math.exp(" + idv.value + " / (9.8 * " + iisp.value + "))\n";
+    output_result(line);
+}
+
+function calc_m1()
+{
+    var isp = parseFloat(iisp.value);
+    var dv = parseFloat(idv.value);
+    var m0 = parseFloat(im0.value);
+    im1.value = m0 / Math.exp(dv / (9.8 * isp));
+    var line = "m1 = " + im0.value + " / Math.exp(" + idv.value + " / (9.8 * " + iisp.value + "))\n";
+    output_result(line);
+}
+
+function update_watches()
+{
+    var dv = parseFloat(idv.value);
+    var isp = parseFloat(iisp.value);
+    var m0 = parseFloat(im0.value);
+    var m1 = parseFloat(im1.value);
+
+    var lines = results.value.split("\n");
+    var str = "";
+    var watchstr = "";
+    while (lines.length && lines[lines.length - 1] == "")
+        lines.length = lines.length - 1;
+    for (var i = 0; i < lines.length; i++)
+    {
+        var eq = lines[i];
+        try {
+            var val = eval(eq);
+            if (val)
+                watchstr = watchstr + val + "\n";
+            else
+                watchstr = watchstr + "\n";
+        } catch(err) {
+            watchstr = watchstr + "\n";
+        }
+        str = str + eq + "\n";
+    }
+    results.value = str;
+    watches.value = watchstr;
+}
+
+function output_result(line)
+{
+    if (results.value.substr(results.value.length - line.length) == line)
+        return;
+    results.value = results.value + line;
+    update_watches();
+}
+
+update_watches();
+
+</script>
+  
+  <p>
+  Shamelessly copied from http://www.quantumg.net/rocketeq.html. If they ever come back, tell me and I will redirect this page to theirs. Some updates made for modern rockets and browsers
+  </p>
+  
+</body>
+</html>

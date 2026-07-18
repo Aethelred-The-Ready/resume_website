@@ -1,0 +1,176 @@
+<body>
+<html>
+<h1>Crucible Blanket Calculator</h1>
+<p>Enter your current XP, then either other number, and press the button beside the value you want to calculate</p>
+<table border="0">
+	<tr>
+		<td>Current XP</td>
+		<td><input id="xp"/></td>
+	</tr>
+	<tr>
+		<td>Blankets To Add</td>
+		<td><input id="blankets"/></td>
+		<td><button onclick="calculateBlankets()">Calculate Blankets</button></td>
+	</tr>
+	<tr>
+		<td>Final SP</td>
+		<td><input id="final_sp"/></td>
+		<td><button onclick="calculateSP()">Calculate SP</button></td>
+	</tr>
+	<tr>
+		<td>Final XP</td>
+		<td><input id="total_xp" readonly/></td>
+	</tr>
+	<tr style="height: 40px">
+	</tr>
+	<tr>
+		<td></td>
+		<td>
+			<button id="evbb" onclick="eventBlanketsSwitch()">Switch to Event blankets</button>
+			<button id="pubb" onclick="eventBlanketsSwitch()" hidden>Switch to Bought blankets</button>
+		</td>
+		<td>This does not change the Calculate Blankets option</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
+			<button type="toggle" onclick="takeLastXP()">Use Final XP</button>
+		</td>
+	</tr>
+</table>
+
+
+<table border="0" style="margin-left: 20px">
+  	<tr>
+  		<td>Actions</td>
+    	<td>Total XP (SP)</td>
+  	</tr>
+	<tr>
+		<td>
+			<textarea id="display" cols="35" rows="25" readonly></textarea>
+		</td>
+		<td>
+			<textarea id="results" cols="20" rows="25" readonly></textarea>
+		</td>
+    </tr>
+	<tr><td><button onclick="clearResults()">Clear Results</button></td></tr>
+</table>
+
+<script language="javascript">
+
+var xp = document.getElementById("xp");
+var blankets = document.getElementById("blankets");
+var final_sp = document.getElementById("final_sp");
+var total_xp = document.getElementById("total_xp");
+var display = document.getElementById("display");
+var results = document.getElementById("results");
+var event_blankets = false
+
+function clearResults() {
+	display.value = ""
+	results.value = ""
+}
+
+function takeLastXP() {
+	xp.value = total_xp.value
+}
+
+function addCalculation(calcString, resultString) {
+	var dispLines = display.value.split("\n")
+	var resLines = results.value.split("\n")
+	var newDisp = calcString + "\n"
+	var newRes = resultString + "\n"
+	for (var i = 0; i < dispLines.length;i++){
+		if(dispLines[i] != "") {
+			newDisp += dispLines[i] + "\n"
+			newRes += resLines[i] + "\n"
+		}
+	}
+	display.value = newDisp
+	results.value = newRes
+}
+
+function eventBlanketsSwitch() {
+	if (event_blankets) {
+		document.getElementById("evbb").hidden = false
+		document.getElementById("pubb").hidden = true
+		event_blankets = false
+	} else {
+		document.getElementById("evbb").hidden = true
+		document.getElementById("pubb").hidden = false
+		event_blankets = true
+	}
+}
+
+function calculateSP() {
+    if (xp.value == "" || blankets.value == "") {
+		return;
+	}
+	var blanket_count = parseInt(blankets.value, 10)
+	var currentSP = 60;
+	var Xpeater = parseInt(xp.value, 10);
+	var totalXP = Xpeater
+	
+	//var event_blankets = document.getElementById("evbb").hidden
+
+	while (Xpeater >= xp_per_sp(currentSP)) {
+		Xpeater -= xp_per_sp(currentSP);
+		currentSP++;
+	}
+	var addingSP = currentSP
+	for(var i = 0; i < blanket_count; i++) {
+		if (!event_blankets) {
+			addingSP = currentSP
+		}
+		Xpeater += addingSP
+		totalXP += addingSP
+		while (Xpeater >= xp_per_sp(currentSP)) {
+			Xpeater -= xp_per_sp(currentSP);
+			currentSP++;
+		}
+	}
+	final_sp.value = currentSP
+	total_xp.value = totalXP
+	if (event_blankets) {
+		addCalculation(xp.value + " xp + " + blanket_count + " event blanket(s)", totalXP + " (" + currentSP + ")")
+	} else {
+		addCalculation(xp.value + " xp + " + blanket_count + " blanket(s)", totalXP + " (" + currentSP + ")")
+	}
+}
+
+function calculateBlankets(){
+	final_sp = document.getElementById("final_sp")
+    if (xp.value == "" || final_sp.value == "") {
+		return;
+	}
+	var currentSP = 60;
+	var Xpeater = parseInt(xp.value, 10);
+	var final_sp = parseInt(final_sp.value, 10)
+	var totalXP = Xpeater
+
+	while (Xpeater >= xp_per_sp(currentSP)) {
+		Xpeater -= xp_per_sp(currentSP);
+		currentSP++;
+	}
+	var blanketCount = 0;
+	for(blanketCount = 0; currentSP < final_sp; blanketCount++) {
+		Xpeater += currentSP
+		totalXP += currentSP
+		while (Xpeater >= xp_per_sp(currentSP)) {
+			Xpeater -= xp_per_sp(currentSP);
+			currentSP++;
+		}
+	}
+	
+
+	blankets.value = blanketCount
+	total_xp.value = totalXP
+}
+
+function xp_per_sp(sp) {
+	var level = Math.floor((sp - 50) / 10);
+	return (level + 4) * (level + 9)/2;
+}
+</script>
+</html>
+</body>
