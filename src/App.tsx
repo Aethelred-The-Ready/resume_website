@@ -1,4 +1,5 @@
 import {BrowserRouter, Routes, Route, Link} from 'react-router-dom'
+import MealScheduler from './MealScheduler'
 
 // Some of these are just pre-existing html pages
 function Resume() {
@@ -24,6 +25,7 @@ function App() {
 			<Route path="/" element={<Resume />} />
 			<Route path="/crucible-blanket-calculator" element={<CrucibleBlanketCalculator />} />
 			<Route path="/rocket-equation" element={<RocketEquation />} />
+			<Route path="/meal-scheduler" element={<MealScheduler />} />
 		</Routes>
 	  </BrowserRouter>
     </>
