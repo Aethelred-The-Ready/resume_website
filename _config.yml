@@ -1,9 +1,0 @@
-theme: jekyll-theme-minimal
-title: Alastair Cranston's Resume
-description: Alastair Cranston Resume
-gems:
-  -jekyll-redirect-from
-whitelist:
-  -jekyll-redirect-from
-plugins:
-  -jekyll-redirect-from
